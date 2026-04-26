@@ -1,35 +1,53 @@
+// Funzione asincrona per controllare le credenziali
+// async permette di usare await per gestire operazioni asincrone (come fetch)
 async function controllaCredenziali() {
     
+    // Recupera i valori inseriti nei campi input
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    if (!username || !password)
-         return alert("scrivi username e password");
-    const res = await fetch(`/login?username=${username}&password=${password}`); // ${} = va a prendere i valori nel file  , per fare ` si usa : alt + windows + 96
-    const dati = await res.json();
-    document.getElementById('Risultato').innerText = dati.messaggio;
-} 
 
-document.getElementById('btn_registrati').addEventListener('click',controllaCredenziali)
-if (dati.messaggio === 0  ) {
-    document.getElementById('Risultato').innerText = "accesso negato , username o password errati ";
-    document.getElementById('username').value = "";
-    document.getElementById('password').value = "";
-}
+    // Controllo campi vuoti
+    if (!username || !password) {
+        return alert("Scrivi username e password");
+    }
 
+    // =========================
+    // RICHIESTA AL SERVER (POST)
+    // =========================
+    // Invia i dati al backend tramite fetch
     const res = await fetch("/login", {
-        method: "POST",
+        method: "POST", // metodo HTTP POST
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
+            // formato dei dati inviati (tipo form HTML)
         },
         body: `username=${username}&password=${password}`
+        // template string: ${} inserisce variabili dentro la stringa
     });
-     const json = await res.json();
 
-    if (json.messaggio == 1){
+    // Converte la risposta del server in JSON
+    const json = await res.json();
+
+    // =========================
+    // RISPOSTA DEL SERVER
+    // =========================
+    // Il backend restituisce un oggetto con una proprietà "messaggio"
+
+    if (json.messaggio == 1) {
+        // Accesso riuscito
         document.getElementById("risultato").innerText = "Accesso effettuato";
-    }
-    else {
+    } else {
+        // Accesso fallito
         document.getElementById("risultato").innerText = "Accesso negato";
-    }
 
+        // Svuota i campi per sicurezza
+        document.getElementById('username').value = "";
+        document.getElementById('password').value = "";
+    }
+}
+
+// =========================
+// EVENT LISTENER
+// =========================
+// Quando l'utente clicca il bottone, esegue la funzione
 document.getElementById('bottone').addEventListener('click', controllaCredenziali);
